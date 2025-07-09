@@ -1,17 +1,16 @@
 "use client";
 
 import { CodeComponentMeta, useSelector } from "@plasmicapp/host";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import axios from "axios";
 import useSWR from "swr";
 
 type ApiRequestType = {
   method: "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
   url: string;
-  params?: Record<string, string | string[]>;
+  params: Record<string, string | string[]>;
   body?: Record<string, any>;
   config?: Record<string, any>;
-  baseUrl?: string; // این اضافه شد
   children: ReactNode;
   shouldFetch?: boolean;
   errorDisplay?: ReactNode;
@@ -26,11 +25,10 @@ type ApiRequestType = {
 export const ApiRequest = (props: ApiRequestType) => {
   const {
     method = "GET",
-    url = "/",
     params,
+    url,
     body,
-    config = {},
-    baseUrl = "https://api.friendschat.ir", // مقدار پیش فرض
+    config,
     errorDisplay,
     loadingDisplay,
     children,
@@ -41,29 +39,8 @@ export const ApiRequest = (props: ApiRequestType) => {
     shouldFetch = true,
     onSuccess,
   } = props;
-
   const fragmentConfig = useSelector("Fragment");
   const [isLoading, setIsLoading] = useState(false);
-
-  const defaultConfig = {
-    baseURL: baseUrl,
-    headers: {
-      appid: "your-app-id",
-      Authorization: "Bearer your-token",
-      "Content-Type": "application/json",
-      Version: "1.0",
-    },
-  };
-
-  const finalConfig = {
-    ...defaultConfig,
-    ...config,
-    headers: {
-      ...defaultConfig.headers,
-      ...(config?.headers || {}),
-    },
-  };
-
   const fetchProps = {
     method,
     url,
@@ -72,14 +49,33 @@ export const ApiRequest = (props: ApiRequestType) => {
     config: {
       ...fragmentConfig?.apiConfig,
       ...fragmentConfig?.previewApiConfig,
-      ...finalConfig,
+      ...config,
     },
   };
-
-  const shouldFetchRequest = shouldFetch !== false && !!url;
-  const fetchKey = shouldFetchRequest ? JSON.stringify({ ...fetchProps, shouldFetch }) : null;
-
-  const requestFn = async ({ method, url, params, body, config }: any) => {
+const shouldFetchRequest = shouldFetch !== false && !!url;
+const fetchKey = shouldFetchRequest ? JSON.stringify({ ...fetchProps, shouldFetch }) : null;
+  const { error } = useSWR(
+    fetchKey,
+    () => reuqestFn(fetchProps),
+    {
+      onError(err) {
+        onLoading?.(false);
+        setIsLoading(false);
+        if (axios.isAxiosError(err)) {
+          onError?.(err.response?.data);
+        }
+      },
+      onSuccess(data) {
+        onLoading?.(false);
+        setIsLoading(false);
+        onSuccess?.(data?.data);
+      },
+      errorRetryCount: 0,
+      revalidateOnFocus: false,
+      keepPreviousData: false,
+    }
+  );
+  const reuqestFn = async ({ method, url, params, body, config }: any) => {
     onLoading?.(true);
     onError?.(null);
     onSuccess?.(null);
@@ -90,29 +86,13 @@ export const ApiRequest = (props: ApiRequestType) => {
         ...config,
       });
     }
-    return await axios[method.toLowerCase() as "post" | "delete" | "put" | "patch"](url, body, {
+    return await axios[
+      method.toLowerCase() as "post" | "delete" | "put" | "patch"
+    ](url, body, {
       params,
       ...config,
     });
   };
-
-  const { error } = useSWR(fetchKey, () => requestFn(fetchProps), {
-    onError(err) {
-      onLoading?.(false);
-      setIsLoading(false);
-      if (axios.isAxiosError(err)) {
-        onError?.(err.response?.data);
-      }
-    },
-    onSuccess(data) {
-      onLoading?.(false);
-      setIsLoading(false);
-      onSuccess?.(data?.data);
-    },
-    errorRetryCount: 0,
-    revalidateOnFocus: false,
-    keepPreviousData: false,
-  });
 
   if (isLoading || previewLoadingDisplay) {
     return loadingDisplay;
@@ -121,7 +101,6 @@ export const ApiRequest = (props: ApiRequestType) => {
   if (!!error || previewErrorDisplay) {
     return errorDisplay;
   }
-
   return children;
 };
 
@@ -138,39 +117,34 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
       defaultValue: "GET",
     },
     url: {
-      displayName: "Endpoint (relative to baseURL)",
+      displayName: "URL",
       type: "string",
-      defaultValue: "/users",
-      defaultValueHint: "/users",
+      defaultValueHint: "/api/v1/users",
       required: true,
-    },
-    baseUrl: {
-      displayName: "Base URL",
-      type: "string",
-      defaultValue: "https://api.friendschat.ir",
-      defaultValueHint: "https://api.friendschat.ir",
-      description: "آدرس سرور اصلی برای درخواست‌ها",
     },
     params: {
       displayName: "Query Params",
       type: "object",
       description: `e.g. { id: 20 }`,
+      helpText: "It will append this to the end of the URL as ?key=value.",
     },
     body: {
       displayName: "Body",
       type: "object",
       description: `e.g. { id: 20 }`,
-      hidden: (ps) => ps.method === "GET",
+      hidden: (ps) => ps.method == "GET",
     },
     config: {
       displayName: "Request Config",
       type: "object",
       description: `e.g. { headers: { 'Authorization': 'XXX' } }`,
-      helpText: "Read about request configuration options at https://axios-http.com/docs/req_config",
+      helpText:
+        "Read about request configuration options at https://axios-http.com/docs/req_config",
     },
     shouldFetch: {
       displayName: "Should Fetch?",
       type: "boolean",
+      description: "If false, the request will not run.",
       defaultValue: true,
     },
     previewLoadingDisplay: {
@@ -183,10 +157,7 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
       type: "boolean",
       editOnly: true,
     },
-    children: {
-      displayName: "Children",
-      type: "slot",
-    },
+    children: { displayName: "Children", type: "slot" },
     loadingDisplay: {
       displayName: "Loading Display",
       type: "slot",
@@ -209,15 +180,30 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
     },
     onSuccess: {
       type: "eventHandler",
-      argTypes: [{ name: "data", type: "object" }],
+      argTypes: [
+        {
+          name: "data",
+          type: "object",
+        },
+      ],
     },
     onError: {
       type: "eventHandler",
-      argTypes: [{ name: "error", type: "object" }],
+      argTypes: [
+        {
+          name: "error",
+          type: "object",
+        },
+      ],
     },
     onLoading: {
       type: "eventHandler",
-      argTypes: [{ name: "loading", type: "boolean" }],
+      argTypes: [
+        {
+          name: "loading",
+          type: "boolean",
+        },
+      ],
     },
   },
   classNameProp: "className",
