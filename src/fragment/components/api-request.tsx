@@ -41,18 +41,6 @@ export const ApiRequest = (props: ApiRequestType) => {
   } = props;
   const fragmentConfig = useSelector("Fragment");
   const [isLoading, setIsLoading] = useState(false);
-  const defaultHeaders = {
-    // appid: "your-app-id",
-    // Authorization: "Bearer your-token",
-    "Content-Type": "application/json",
-    Version: "1.0",
-  };
-
-  const finalHeaders = {
-    ...defaultHeaders,
-    ...(config?.headers || {}),
-  };
-
   const fetchProps = {
     method,
     url,
@@ -62,9 +50,9 @@ export const ApiRequest = (props: ApiRequestType) => {
       ...fragmentConfig?.apiConfig,
       ...fragmentConfig?.previewApiConfig,
       ...config,
-      headers: finalHeaders, // ✅ اینجا استفاده شده
     },
   };
+
 
 const shouldFetchRequest = shouldFetch !== false && !!url;
 const fetchKey = shouldFetchRequest ? JSON.stringify({ ...fetchProps, shouldFetch }) : null;
@@ -152,6 +140,11 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
     config: {
       displayName: "Request Config",
       type: "object",
+      defaultValue: { headers: { appid: "your-app-id",
+     Authorization: "Bearer your-token",
+    "Content-Type": "application/json",
+    Version: "1.0",
+  } },
       description: `e.g. { headers: { 'Authorization': 'XXX' } }`,
       helpText:
         "Read about request configuration options at https://axios-http.com/docs/req_config",
