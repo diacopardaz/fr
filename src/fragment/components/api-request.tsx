@@ -119,6 +119,7 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
     url: {
       displayName: "URL",
       type: "string",
+      defaultValue: "https://api.friendschat.ir",
       defaultValueHint: "/api/v1/users",
       required: true,
     },
