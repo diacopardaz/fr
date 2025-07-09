@@ -26,9 +26,13 @@ export const ApiRequest = (props: ApiRequestType) => {
   const {
     method = "GET",
     params,
-    url,
+    url="https://api.friendschat.ir/",
     body,
-    config,
+    config={headers: {
+      appid: "your-app-id",
+      Authorization: "Bearer your-token",
+      "Content-Type": "application/json",
+      Version: "1.0"}},
     errorDisplay,
     loadingDisplay,
     children,
