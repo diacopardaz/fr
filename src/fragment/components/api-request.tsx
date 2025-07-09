@@ -42,8 +42,8 @@ export const ApiRequest = (props: ApiRequestType) => {
   const fragmentConfig = useSelector("Fragment");
   const [isLoading, setIsLoading] = useState(false);
   const defaultHeaders = {
-    appid: "your-app-id",
-    Authorization: "Bearer your-token",
+    // appid: "your-app-id",
+    // Authorization: "Bearer your-token",
     "Content-Type": "application/json",
     Version: "1.0",
   };
