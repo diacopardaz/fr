@@ -52,8 +52,6 @@ export const ApiRequest = (props: ApiRequestType) => {
       ...config,
     },
   };
-
-
 const shouldFetchRequest = shouldFetch !== false && !!url;
 const fetchKey = shouldFetchRequest ? JSON.stringify({ ...fetchProps, shouldFetch }) : null;
   const { error } = useSWR(
