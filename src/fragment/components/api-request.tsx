@@ -1,18 +1,9 @@
-/* eslint-disable react/display-name */
 "use client";
 
 import { CodeComponentMeta, useSelector } from "@plasmicapp/host";
-import {
-  ReactNode,
-  useEffect,
-  useState,
-  useId,
-  useImperativeHandle,
-  forwardRef,
-  useMemo,
-} from "react";
+import { ReactNode, useEffect, useState } from "react";
 import axios from "axios";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 type ApiRequestType = {
   method: "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
@@ -21,6 +12,7 @@ type ApiRequestType = {
   body?: Record<string, any>;
   config?: Record<string, any>;
   children: ReactNode;
+  shouldFetch?: boolean;
   errorDisplay?: ReactNode;
   loadingDisplay?: ReactNode;
   previewErrorDisplay?: boolean;
@@ -30,7 +22,7 @@ type ApiRequestType = {
   onSuccess?: (data: any) => void;
 };
 
-export const ApiRequest = forwardRef((props: ApiRequestType, ref) => {
+export const ApiRequest = (props: ApiRequestType) => {
   const {
     method = "GET",
     params,
@@ -44,28 +36,26 @@ export const ApiRequest = forwardRef((props: ApiRequestType, ref) => {
     previewLoadingDisplay,
     onError,
     onLoading,
+    shouldFetch = true,
     onSuccess,
   } = props;
   const fragmentConfig = useSelector("Fragment");
-  const id = useId();
   const [isLoading, setIsLoading] = useState(false);
-  const fetchProps = useMemo(
-    () => ({
-      method,
-      url,
-      params,
-      body,
-      config: {
-        ...fragmentConfig?.apiConfig,
-        ...fragmentConfig?.previewApiConfig,
-        ...config,
-      },
-      id: id,
-    }),
-    [method, url, params, body, config, fragmentConfig, id]
-  );
+  const fetchProps = {
+    method,
+    url,
+    params,
+    body,
+    config: {
+      ...fragmentConfig?.apiConfig,
+      ...fragmentConfig?.previewApiConfig,
+      ...config,
+    },
+  };
+const shouldFetchRequest = shouldFetch !== false && !!url;
+const fetchKey = shouldFetchRequest ? JSON.stringify({ ...fetchProps, shouldFetch }) : null;
   const { error } = useSWR(
-    JSON.stringify(fetchProps),
+    fetchKey,
     () => reuqestFn(fetchProps),
     {
       onError(err) {
@@ -85,21 +75,6 @@ export const ApiRequest = forwardRef((props: ApiRequestType, ref) => {
       keepPreviousData: false,
     }
   );
-
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        refresh: () => {
-          mutate(JSON.stringify(fetchProps), () => reuqestFn(fetchProps), {
-            revalidate: true,
-          });
-        },
-      };
-    },
-    []
-  );
-
   const reuqestFn = async ({ method, url, params, body, config }: any) => {
     onLoading?.(true);
     onError?.(null);
@@ -127,14 +102,13 @@ export const ApiRequest = forwardRef((props: ApiRequestType, ref) => {
     return errorDisplay;
   }
   return children;
-});
+};
 
 export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
   name: "ApiRequest",
   displayName: "Fragment/ApiRequest",
   importPath: "@/fragment/components/api-request",
   figmaMappings: [{ figmaComponentName: "ApiRequest" }],
-  section: "Fragment",
   props: {
     method: {
       type: "choice",
@@ -166,6 +140,12 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
       description: `e.g. { headers: { 'Authorization': 'XXX' } }`,
       helpText:
         "Read about request configuration options at https://axios-http.com/docs/req_config",
+    },
+    shouldFetch: {
+      displayName: "Should Fetch?",
+      type: "boolean",
+      description: "If false, the request will not run.",
+      defaultValue: true,
     },
     previewLoadingDisplay: {
       displayName: "Preview Loading Display",
@@ -224,12 +204,6 @@ export const apiRequestMeta: CodeComponentMeta<ApiRequestType> = {
           type: "boolean",
         },
       ],
-    },
-  },
-  refActions: {
-    refresh: {
-      argTypes: [],
-      displayName: "Refresh Data",
     },
   },
   classNameProp: "className",
