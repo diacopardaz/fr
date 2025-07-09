@@ -64,8 +64,8 @@ export const DatePickers = (props: DatePickersProps) => {
   const years =
     customYears.length > 0
       ? customYears
-      : Array.from({ length: currentYear - 1300 + 1 }, (_, i) => {
-          const year = 1300 + i;
+      : Array.from({ length: currentYear - 1350 + 1 }, (_, i) => {
+          const year = 1350 + i;
           return { value: year, label: toPersianDigits(year) };
         });
 
