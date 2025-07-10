@@ -21,7 +21,7 @@ import { Textarea, textareaMeta } from "@/fragment/components/textarea";
 import {DatePickers,DatePickersMeta} from "@/components/DatePickers";
 import {Pickers,PickersMeta} from "@/components/Pickers";
 import {PullToRefresh,PullToRefreshMeta} from "@/components/PullToRefresh";
-import {CustomSlider,CustomSliderMeta} from "@/components/Slider";
+import {CustomSlider,CustomSliderMeta} from "@/components/CustomSlider";
 
 
 export default function PlasmicHost() {
