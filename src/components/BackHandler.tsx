@@ -3,13 +3,13 @@ import { CodeComponentMeta } from "@plasmicapp/host";
 
 type BackHandlerProps = {
   onBack?: () => void;
+  active?: boolean;
 };
 
-export const BackHandler = ({ onBack }: BackHandlerProps) => {
+export const BackHandler = ({ onBack, active = true }: BackHandlerProps) => {
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !active) return;
 
-    // یک state پایه و سپس state سفارشی اضافه می‌کنیم
     window.history.pushState(null, "");
     window.history.pushState({ isCustom: true }, "");
 
@@ -18,7 +18,6 @@ export const BackHandler = ({ onBack }: BackHandlerProps) => {
         const action = onBack || (() => console.log("onBack not provided - default back action"));
         action();
 
-        // چون برگشت خوردیم، دوباره state رو اضافه می‌کنیم
         window.history.pushState({ isCustom: true }, "");
       }
     };
@@ -28,9 +27,9 @@ export const BackHandler = ({ onBack }: BackHandlerProps) => {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [onBack]);
+  }, [onBack, active]);
 
-  return null; // چون فقط گوش می‌ده، نیازی به UI نداره
+  return null;
 };
 
 export const BackHandlerMeta: CodeComponentMeta<BackHandlerProps> = {
@@ -40,6 +39,10 @@ export const BackHandlerMeta: CodeComponentMeta<BackHandlerProps> = {
     onBack: {
       type: "eventHandler",
       argTypes: [],
+    },
+    active: {
+      type: "boolean",
+      defaultValue: true,
     },
   },
 };
