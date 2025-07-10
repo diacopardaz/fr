@@ -21,6 +21,8 @@ import { Textarea, textareaMeta } from "@/fragment/components/textarea";
 import {DatePickers,DatePickersMeta} from "@/components/DatePickers";
 import {Pickers,PickersMeta} from "@/components/Pickers";
 import {PullToRefresh,PullToRefreshMeta} from "@/components/PullToRefresh";
+import {Slider,SliderMeta} from "@/components/Slider";
+
 
 export default function PlasmicHost() {
   return <PlasmicCanvasHost />;
@@ -42,4 +44,5 @@ registerComponent(Textarea, textareaMeta);
 registerComponent(DatePickers, DatePickersMeta);
 registerComponent(Pickers, PickersMeta);
 registerComponent(PullToRefresh, PullToRefreshMeta);
+registerComponent(Slider, SliderMeta);
 
