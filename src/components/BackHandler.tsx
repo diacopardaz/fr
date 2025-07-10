@@ -7,12 +7,16 @@ type BackHandlerProps = {
 
 export const BackHandler = ({ onBack }: BackHandlerProps) => {
   useEffect(() => {
-    // یک state جعلی به history اضافه می‌کنیم
+    if (typeof window === "undefined") return;
+
+    // یک state پایه و سپس state سفارشی اضافه می‌کنیم
+    window.history.pushState(null, "");
     window.history.pushState({ isCustom: true }, "");
 
     const handlePopState = (e: PopStateEvent) => {
-      if (e.state?.isCustom && onBack) {
-        onBack();
+      if (e.state?.isCustom) {
+        const action = onBack || (() => console.log("onBack not provided - default back action"));
+        action();
 
         // چون برگشت خوردیم، دوباره state رو اضافه می‌کنیم
         window.history.pushState({ isCustom: true }, "");
