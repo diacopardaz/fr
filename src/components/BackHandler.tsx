@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CodeComponentMeta } from "@plasmicapp/host";
 
 type BackHandlerProps = {
@@ -6,15 +6,28 @@ type BackHandlerProps = {
 };
 
 export const BackHandler = ({ onBack }: BackHandlerProps) => {
+  const onBackRef = useRef<() => void>();
+  const [isReady, setIsReady] = useState(false);
+
+  // نگه داشتن آخرین مقدار onBack
   useEffect(() => {
-    // یک state جعلی به history اضافه می‌کنیم
-    window.history.pushState({ isCustom: true }, "");
+    if (onBack) {
+      onBackRef.current = onBack;
+      setIsReady(true);
+    }
+  }, [onBack]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    // تاخیر خیلی کوتاه تا بعد از render کامل مودال
+    const timeoutId = setTimeout(() => {
+      window.history.pushState({ isCustom: true }, "");
+    }, 50);
 
     const handlePopState = (e: PopStateEvent) => {
-      if (e.state?.isCustom && onBack) {
-        onBack();
-
-        // چون برگشت خوردیم، دوباره state رو اضافه می‌کنیم
+      if (e.state?.isCustom) {
+        onBackRef.current?.();
         window.history.pushState({ isCustom: true }, "");
       }
     };
@@ -22,11 +35,12 @@ export const BackHandler = ({ onBack }: BackHandlerProps) => {
     window.addEventListener("popstate", handlePopState);
 
     return () => {
+      clearTimeout(timeoutId);
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [onBack]);
+  }, [isReady]);
 
-  return null; // چون فقط گوش می‌ده، نیازی به UI نداره
+  return null;
 };
 
 export const BackHandlerMeta: CodeComponentMeta<BackHandlerProps> = {
