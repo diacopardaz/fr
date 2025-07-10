@@ -44,5 +44,5 @@ registerComponent(Textarea, textareaMeta);
 registerComponent(DatePickers, DatePickersMeta);
 registerComponent(Pickers, PickersMeta);
 registerComponent(PullToRefresh, PullToRefreshMeta);
-registerComponent(CustomSlider,CustomSliderMeta);
+registerComponent(CustomSlider,CustomSliderMeta );
 
