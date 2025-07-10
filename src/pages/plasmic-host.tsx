@@ -22,6 +22,8 @@ import {DatePickers,DatePickersMeta} from "@/components/DatePickers";
 import {Pickers,PickersMeta} from "@/components/Pickers";
 import {PullToRefresh,PullToRefreshMeta} from "@/components/PullToRefresh";
 import {SwiperSlider,SwiperSliderMeta} from "@/components/SwiperSlider";
+import {BackHandler,BackHandlerMeta} from "@/components/BackHandler";
+
 
 
 export default function PlasmicHost() {
@@ -45,4 +47,6 @@ registerComponent(DatePickers, DatePickersMeta);
 registerComponent(Pickers, PickersMeta);
 registerComponent(PullToRefresh, PullToRefreshMeta);
 registerComponent(SwiperSlider,SwiperSliderMeta );
+registerComponent(BackHandler,BackHandlerMeta );
+
 
