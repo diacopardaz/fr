@@ -116,7 +116,22 @@ export const Fragment = ({
         hidden
       >
         {children}
-        <Toaster />
+        <Toaster /><Toaster
+          toastOptions={{
+            // کلاس‌های عمومی برای تمام toastها
+            className: 'custom-toast',
+            // کلاس‌های مخصوص برای انواع مختلف toast
+            success: {
+              className: 'custom-toast-success',
+            },
+            error: {
+              className: 'custom-toast-error',
+            },
+            custom: { 
+              className: 'custom-toast-info' 
+            }
+          }}
+        />
       </DataProvider>
     </GlobalActionsProvider>
   );
