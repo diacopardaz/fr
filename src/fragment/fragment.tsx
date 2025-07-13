@@ -297,7 +297,7 @@ export const fragmentMeta: GlobalContextMeta<FragmentProps> = {
             type: "string",
             defaultValueHint: "9",
             required: true,
-          }}
+          }},
         { name: "day", type: {
             type: "string",
             defaultValueHint: "3",
