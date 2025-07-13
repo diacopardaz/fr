@@ -11,6 +11,8 @@ type SwiperSliderProps = {
   autoplay?: boolean;
   autoplayDelay?: number;
   showPagination?: boolean;
+  bulletColor?: string;
+  activeBulletColor?: string;
   className?: string;
 };
 
@@ -20,22 +22,39 @@ export const SwiperSlider = ({
   autoplay = true,
   autoplayDelay = 3000,
   showPagination = true,
+  bulletColor = "#888888",
+  activeBulletColor = "#ffffff",
   className,
 }: SwiperSliderProps) => {
   const slides = React.Children.toArray(children);
 
   return (
-    <Swiper
-      loop={loop}
-      autoplay={autoplay ? { delay: autoplayDelay } : false}
-      pagination={showPagination ? { clickable: true } : false}
-      modules={[Autoplay, Pagination]}
-      className={className}
-    >
-      {slides.map((slide, index) => (
-        <SwiperSlide key={index}>{slide}</SwiperSlide>
-      ))}
-    </Swiper>
+    <>
+      <style>
+        {`
+          .swiper-pagination-bullet {
+            background-color: ${bulletColor} !important;
+            opacity: 0.5;
+          }
+          .swiper-pagination-bullet-active {
+            background-color: ${activeBulletColor} !important;
+            opacity: 1;
+          }
+        `}
+      </style>
+
+      <Swiper
+        loop={loop}
+        autoplay={autoplay ? { delay: autoplayDelay } : false}
+        pagination={showPagination ? { clickable: true } : false}
+        modules={[Autoplay, Pagination]}
+        className={className}
+      >
+        {slides.map((slide, index) => (
+          <SwiperSlide key={index}>{slide}</SwiperSlide>
+        ))}
+      </Swiper>
+    </>
   );
 };
 
@@ -55,6 +74,14 @@ export const SwiperSliderMeta: CodeComponentMeta<SwiperSliderProps> = {
     autoplay: { type: "boolean", defaultValue: true },
     autoplayDelay: { type: "number", defaultValue: 3000 },
     showPagination: { type: "boolean", defaultValue: true },
-    className: { type: "class" }, // 👈 برای Plasmic بسیار مهمه
+    bulletColor: {
+      type: "color",
+      defaultValue: "#888888",
+    },
+    activeBulletColor: {
+      type: "color",
+      defaultValue: "#ffffff",
+    },
+    className: { type: "class" },
   },
 };
