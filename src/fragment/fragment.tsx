@@ -7,6 +7,7 @@ import {
   GlobalContextMeta,
 } from "@plasmicapp/host";
 import axios from "axios";
+import moment from "jalali-moment";
 
 type FragmentProps = React.PropsWithChildren<{
   previewApiConfig: Record<string, any>;
@@ -98,6 +99,10 @@ export const Fragment = ({
       },
       wait: (duration: number = 1000) => {
         return new Promise((resolve) => setTimeout(resolve, duration));
+      },
+      convertJalaliToGregorian: (year: number | string, month: number | string, day: number | string) => {
+        const jalaliDate = `${year}/${month}/${day}`;
+        return moment(jalaliDate, "jYYYY/jMM/jDD").format("YYYY-MM-DD");
       },
     }),
     []
@@ -278,6 +283,14 @@ export const fragmentMeta: GlobalContextMeta<FragmentProps> = {
               "Read about request configuration options at https://axios-http.com/docs/req_config",
           },
         },
+      ],
+    },
+    convertJalaliToGregorian: {
+      displayName: "Convert Jalali To Gregorian",
+      parameters: [
+        { name: "year", type: { type: "string" }, required: true },
+        { name: "month", type: { type: "string" }, required: true },
+        { name: "day", type: { type: "string" }, required: true },
       ],
     },
   },
