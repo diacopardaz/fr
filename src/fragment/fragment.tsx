@@ -8,6 +8,7 @@ import {
 } from "@plasmicapp/host";
 import axios from "axios";
 import moment from "jalali-moment";
+import Cookies from "js-cookie";
 
 type FragmentProps = React.PropsWithChildren<{
   previewApiConfig: Record<string, any>;
@@ -115,6 +116,31 @@ export const Fragment = ({
         
           return date.format(format);
         },
+       cookieManager : (
+              action: "get" | "set" | "remove",
+              key: string,
+              value?: string,
+              options?: { days?: number; path?: string }
+            ): string | undefined => {
+              const cookieOptions = {
+                expires: options?.days ?? 7,
+                path: options?.path ?? '/',
+              };
+            
+              if (action === "set" && value !== undefined) {
+                Cookies.set(key, value, cookieOptions);
+                return 'OK';
+              }
+            
+              if (action === "get") {
+                return Cookies.get(key);
+              }
+            
+              if (action === "remove") {
+                Cookies.remove(key, { path: options?.path ?? '/' });
+                return 'OK';
+              }
+            }
     }),
     []
   );
@@ -346,6 +372,44 @@ export const fragmentMeta: GlobalContextMeta<FragmentProps> = {
         },
       ],
     },
+    cookieManager: {
+        displayName: "Cookie Manager",
+        parameters: [
+          {
+            name: "action",
+            type: {
+              type: "choice",
+              options: ["get", "set", "remove"],
+              required: true,
+              defaultValueHint: "get",
+            },
+          },
+          {
+            name: "key",
+            type: {
+              type: "string",
+              required: true,
+              defaultValueHint: "userToken",
+            },
+          },
+          {
+            name: "value",
+            type: {
+              type: "string",
+              defaultValueHint: "abc123",
+              helpText: "Only used for action = set",
+            },
+          },
+          {
+            name: "options",
+            type: {
+              type: "object",
+              helpText: "Optional settings like days and path. Example: { days: 7, path: '/' }",
+            },
+          },
+        ],
+      },
+
 
   },
 };
