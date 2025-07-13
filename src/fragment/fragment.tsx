@@ -288,9 +288,21 @@ export const fragmentMeta: GlobalContextMeta<FragmentProps> = {
     convertJalaliToGregorian: {
       displayName: "Convert Jalali To Gregorian",
       parameters: [
-        { name: "year", type: { type: "string" }, required: true },
-        { name: "month", type: { type: "string" }, required: true },
-        { name: "day", type: { type: "string" }, required: true },
+        { name: "year", type: {
+            type: "string",
+            defaultValueHint: "1403",
+            required: true,
+          }},
+        { name: "month", type: {
+            type: "string",
+            defaultValueHint: "9",
+            required: true,
+          }}
+        { name: "day", type: {
+            type: "string",
+            defaultValueHint: "3",
+            required: true,
+          }}
       ],
     },
   },
