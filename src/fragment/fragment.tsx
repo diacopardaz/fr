@@ -104,6 +104,17 @@ export const Fragment = ({
         const jalaliDate = `${year}/${month}/${day}`;
         return moment(jalaliDate, "jYYYY/jMM/jDD").format("YYYY-MM-DD");
       },
+      formatDate: (
+          dateStr: string,
+          type: "jalali" | "gregorian",
+          format: string = "dddd D MMMM YYYY"
+        ) => {
+          const date = type === "jalali"
+            ? moment(dateStr, "jYYYY/jMM/jDD").locale("fa")
+            : moment(dateStr, "YYYY-MM-DD").locale("fa");
+        
+          return date.format(format);
+        },
     }),
     []
   );
@@ -305,5 +316,36 @@ export const fragmentMeta: GlobalContextMeta<FragmentProps> = {
           }}
       ],
     },
+    formatDate: {
+      displayName: "Format Date (Jalali or Gregorian)",
+      parameters: [
+        {
+          name: "dateStr",
+          type: {
+            type: "string",
+            defaultValueHint: "1403/04/01 or 2025-06-21",
+            required: true,
+          },
+        },
+        {
+          name: "type",
+          type: {
+            type: "choice",
+            options: ["jalali", "gregorian"],
+            defaultValueHint: "jalali",
+            required: true,
+          },
+        },
+        {
+          name: "format",
+          type: {
+            type: "string",
+            defaultValueHint: "dddd D MMMM YYYY",
+            helpText: `Moment.js format (e.g. "jYYYY/jMM/jDD" or "dddd D MMMM YYYY")`,
+          },
+        },
+      ],
+    },
+
   },
 };
